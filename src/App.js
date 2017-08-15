@@ -14,7 +14,8 @@ class App extends Component {
 
     this.state = {
       vehiclesToDisplay: [],
-      buyersToDisplay: []
+      buyersToDisplay: [],
+      url: 'https://joes-autos.herokuapp.com'
     }
 
     this.getVehicles = this.getVehicles.bind(this);
@@ -27,9 +28,18 @@ class App extends Component {
     this.nameSearch = this.nameSearch.bind(this);
     this.resetData = this.resetData.bind(this);
   }
+  
+  componentDidMount() {
+    this.getVehicles();
+  }
 
   getVehicles() {
     // axios (GET)
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles').then( (response)=> { 
+      this.setState({
+        vehiclesToDisplay: response.data
+      })
+    })
     // setState with response -> vehiclesToDisplay
   }
 
@@ -38,8 +48,14 @@ class App extends Component {
     // setState with response -> buyersToDisplay
   }
 
-  sellCar(e, id) {
+  sellCar(id) {
     // axios (DELETE)
+    axios.delete('https://joes-autos.herokuapp.com/api/vehicles/' + id).then( (response)=> {
+      console.log(response);
+        this.setState({
+          vehiclesToDisplay: response.data.vehicles
+        })
+    })
     // setState with response -> vehiclesToDisplay
 
   }
@@ -47,17 +63,35 @@ class App extends Component {
   filterByMake() {
     let make = this.refs.selectedMake.value
     // axios (GET)
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles?make=' + make).then( (res)=> {
+      console.log(res);
+      this.setState({
+        vehiclesToDisplay: res.data.vehicles
+      })
+    })
     // setState with response -> vehiclesToDisplay
   }
 
   filterByColor() {
     let color = this.refs.selectedColor.value;
     // axios (GET)
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles?color=' + color).then( (res)=> {
+      console.log(res);
+      this.setState({
+          vehiclesToDisplay: res.data.vehicles
+      })
+    })
     // setState with response -> vehiclesToDisplay
   }
 
-  updatePrice(priceChange) {
+  updatePrice(priceChange, id) {
     // axios (PUT)
+    axios.put('https://joes-autos.herokuapp.com/api/vehicles/' + id +'/' + priceChange).then( (response)=> {
+      console.log(response);
+      this.setState({
+        vehiclesToDisplay: response.data.vehicles
+      })
+    })
     // setState with response -> vehiclesToDisplay
   }
 
@@ -70,6 +104,11 @@ class App extends Component {
     price: this.refs.price.value
   }  
   // axios (POST)
+  axios.post('https://joes-autos.herokuapp.com/api/vehicles', newCar).then( (response)=> {
+    this.setState({
+      vehiclesToDisplay: response.data.vehicles
+    })
+  })
   // setState with response -> vehiclesToDisplay
 }
 
@@ -114,11 +153,11 @@ resetData(dataToReset) {
           <p>Price: { v.price }</p>
           <button
             className='btn btn-sp'
-            onClick={ () => this.updatePrice('up') }
+            onClick={ () => this.updatePrice('up', v.id) }
             >Increase Price</button>
           <button
             className='btn btn-sp'
-            onClick={ () => this.updatePrice('down') }
+            onClick={ () => this.updatePrice('down', v.id) }
             >Decrease Price</button>  
           <button 
             className='btn btn-sp'
